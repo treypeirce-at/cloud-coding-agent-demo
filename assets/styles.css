@@ -1,15 +1,126 @@
-/* Minimal custom styles. Tailwind handles everything else. */
+/* Pulse Dashboard — styles.css
+   Tailwind handles most styling via CDN classes.
+   This file contains: base font setup, dark-mode native input fixes,
+   date range dropdown polish, and print overrides.
+*/
 
-html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+/* --------------------------------------------------------------------------
+   Base
+-------------------------------------------------------------------------- */
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
 
-/* Smooth focus styles consistent across browsers */
-:focus { outline: none; }
+/* --------------------------------------------------------------------------
+   Native <input type="date"> — dark mode
+   Browsers render the date picker chrome in its own color scheme; we force
+   it to match the dark dashboard palette.
+-------------------------------------------------------------------------- */
+.dark .date-input {
+  color-scheme: dark;
+}
 
-/* Tabular numbers in metric cells */
-.tabular-nums { font-variant-numeric: tabular-nums; }
+.date-input {
+  color-scheme: light;
+}
 
-/* Smooth theme transitions */
-html { transition: background-color 0.2s ease, color 0.2s ease; }
+/* Ensure the calendar icon inherits the right tint in WebKit */
+.dark .date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.7) brightness(1.4);
+  cursor: pointer;
+  opacity: 0.7;
+}
 
-/* Dark mode body background fallback (for elements outside Tailwind scope) */
-.dark body { background-color: #030712; }
+.date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Date range dropdown
+   Tailwind classes handle most of this; these are supplemental overrides
+   for animation and focus-visible states.
+-------------------------------------------------------------------------- */
+#dateRangeDropdown {
+  /* Subtle entrance animation */
+  transform-origin: top right;
+  animation: dropdownOpen 0.12s ease-out;
+}
+
+#dateRangeDropdown.hidden {
+  display: none;
+  animation: none;
+}
+
+@keyframes dropdownOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Active/selected preset button state — supplements Tailwind classes */
+.date-range-preset.active,
+.date-range-preset[aria-current="true"] {
+  background-color: #f3f4f6; /* gray-100 */
+  color: #111827;             /* gray-900 */
+  font-weight: 500;
+}
+
+.dark .date-range-preset.active,
+.dark .date-range-preset[aria-current="true"] {
+  background-color: #1f2937; /* gray-800 */
+  color: #f9fafb;             /* gray-50 */
+}
+
+/* Focus ring for keyboard navigation */
+.date-range-preset:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: -2px;
+}
+
+/* --------------------------------------------------------------------------
+   Table rows — zebra / hover in dark mode
+   (divide-y is applied via Tailwind; this catches any gap-fill edge cases)
+-------------------------------------------------------------------------- */
+#metricsTableBody tr {
+  border-bottom-width: 1px;
+  border-color: #f3f4f6; /* gray-100 */
+}
+
+.dark #metricsTableBody tr {
+  border-color: #1f2937; /* gray-800 */
+}
+
+/* --------------------------------------------------------------------------
+   Print styles
+-------------------------------------------------------------------------- */
+@media print {
+  /* Hide interactive chrome */
+  #dateRangeBtn,
+  #dateRangeDropdown,
+  #darkToggle,
+  #tableFilter {
+    display: none !important;
+  }
+
+  /* Force light background for printing */
+  body {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  /* Ensure chart canvas prints */
+  canvas {
+    max-width: 100% !important;
+  }
+}
