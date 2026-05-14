@@ -7,7 +7,7 @@
 // Until then, the widget shows a placeholder state.
 
 (function () {
-  const AIRTABLE_FORM_URL = "REPLACE_WITH_AIRTABLE_FORM_URL";
+  const AIRTABLE_FORM_URL = "https://airtable.com/appyocRmXDyMH1iJm/shrIDRvvy1PoDYgJd";
   const isConfigured =
     AIRTABLE_FORM_URL &&
     AIRTABLE_FORM_URL !== "REPLACE_WITH_AIRTABLE_FORM_URL" &&
