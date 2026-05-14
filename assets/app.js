@@ -5,7 +5,7 @@
   const data = window.PULSE_DATA;
   if (!data) return;
 
-  // ---------------- Table render ----------------
+  // ----------------- Table render ----------------
   const tbody = document.getElementById("metricsTableBody");
   if (tbody) {
     const formatNum = (n) => n.toLocaleString("en-US");
@@ -19,9 +19,40 @@
     // Newest first in the table
     const rows = data.daily.slice().reverse();
 
-    tbody.innerHTML = rows
-      .map((r, i) => {
-        return `
+    // Render table rows, optionally filtered by a search term
+    function renderTable(filter) {
+      const term = (filter || "").toLowerCase().trim();
+      const filtered = term
+        ? rows.filter((r) => {
+            const cells = [
+              formatDate(r.date),
+              r.date,
+              formatNum(r.users),
+              String(r.users),
+              formatNum(r.sessions),
+              String(r.sessions),
+              r.conversion.toFixed(1) + "%",
+              String(r.conversion),
+              formatCurrency(r.revenue),
+              String(r.revenue)
+            ];
+            return cells.some((c) => c.toLowerCase().includes(term));
+          })
+        : rows;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-400 dark:text-gray-500">
+              No matching rows for &#x201C;<span class="font-medium text-gray-600 dark:text-gray-300">${term.replace(/[<>&"]/g, "")}</span>&#x201D;
+            </td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered
+        .map((r) => {
+          return `
           <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
             <td class="px-6 py-3 text-gray-900 dark:text-gray-100 font-medium">${formatDate(r.date)}</td>
             <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">${formatNum(r.users)}</td>
@@ -45,11 +76,22 @@
             </td>
           </tr>
         `;
-      })
-      .join("");
+        })
+        .join("");
+    }
 
-    // Single-row export -- creates a one-row CSV. This is the v1 the coding
-    // agent will later replace with a bulk "Export all" button at the top.
+    // Initial render (no filter)
+    renderTable("");
+
+    // Wire up the filter input
+    const filterInput = document.getElementById("tableFilter");
+    if (filterInput) {
+      filterInput.addEventListener("input", () => {
+        renderTable(filterInput.value);
+      });
+    }
+
+    // Single-row export -- creates a one-row CSV.
     tbody.addEventListener("click", (e) => {
       const btn = e.target.closest(".export-row");
       if (!btn) return;
@@ -79,7 +121,7 @@
     URL.revokeObjectURL(url);
   }
 
-  // ---------------- Chart render ----------------
+  // ----------------- Chart render ----------------
   const canvas = document.getElementById("dauChart");
   if (canvas && window.Chart) {
     const ctx = canvas.getContext("2d");
