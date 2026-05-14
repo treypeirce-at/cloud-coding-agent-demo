@@ -5,22 +5,26 @@
   const data = window.PULSE_DATA;
   if (!data) return;
 
-  // ---------------- Table render ----------------
+  // ----------------- Formatters ----------------
+  const formatNum = (n) => n.toLocaleString("en-US");
+  const formatCurrency = (n) =>
+    "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const formatDate = (iso) => {
+    const d = new Date(iso + "T00:00:00");
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  // ----------------- Table render ----------------
   const tbody = document.getElementById("metricsTableBody");
-  if (tbody) {
-    const formatNum = (n) => n.toLocaleString("en-US");
-    const formatCurrency = (n) =>
-      "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-    const formatDate = (iso) => {
-      const d = new Date(iso + "T00:00:00");
-      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    };
+
+  function renderTable() {
+    if (!tbody) return;
 
     // Newest first in the table
     const rows = data.daily.slice().reverse();
 
     tbody.innerHTML = rows
-      .map((r, i) => {
+      .map((r) => {
         return `
           <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
             <td class="px-6 py-3 text-gray-900 dark:text-gray-100 font-medium">${formatDate(r.date)}</td>
@@ -47,9 +51,12 @@
         `;
       })
       .join("");
+  }
 
-    // Single-row export -- creates a one-row CSV. This is the v1 the coding
-    // agent will later replace with a bulk "Export all" button at the top.
+  // Single-row export — creates a one-row CSV. This is the v1 the coding
+  // agent will later replace with a bulk "Export all" button at the top.
+  // Event delegation on tbody so it survives renderTable() rebuilds.
+  if (tbody) {
     tbody.addEventListener("click", (e) => {
       const btn = e.target.closest(".export-row");
       if (!btn) return;
@@ -79,9 +86,13 @@
     URL.revokeObjectURL(url);
   }
 
-  // ---------------- Chart render ----------------
-  const canvas = document.getElementById("dauChart");
-  if (canvas && window.Chart) {
+  // ----------------- Chart render ----------------
+  let dauChart = null;
+
+  function renderChart() {
+    const canvas = document.getElementById("dauChart");
+    if (!canvas || !window.Chart) return;
+
     const ctx = canvas.getContext("2d");
     const labels = data.daily.map((r) => {
       const d = new Date(r.date + "T00:00:00");
@@ -97,7 +108,7 @@
     const fillColor = isDark ? "rgba(99, 102, 241, 0.12)" : "rgba(79, 70, 229, 0.08)";
     const priorBorderColor = isDark ? "#4b5563" : "#d1d5db";
 
-    new Chart(ctx, {
+    dauChart = new Chart(ctx, {
       type: "line",
       data: {
         labels,
@@ -171,4 +182,112 @@
       }
     });
   }
+
+  // ----------------- Last-updated timestamp ----------------
+  let lastRefreshTime = Date.now();
+  let timestampIntervalId = null;
+
+  function updateTimestampText() {
+    const el = document.getElementById("lastUpdated");
+    if (!el) return;
+    const elapsed = Math.floor((Date.now() - lastRefreshTime) / 1000); // seconds
+    if (elapsed < 30) {
+      el.textContent = "Updated just now";
+    } else {
+      const mins = Math.floor(elapsed / 60);
+      el.textContent = mins === 1 ? "Updated 1 min ago" : `Updated ${mins} min ago`;
+    }
+  }
+
+  function startTimestampUpdater() {
+    if (timestampIntervalId !== null) return; // already running
+    timestampIntervalId = setInterval(updateTimestampText, 30000);
+  }
+
+  // ----------------- Refresh dashboard ----------------
+  function refreshDashboard() {
+    // Rebuild table (delegation listener on tbody survives innerHTML rebuild)
+    renderTable();
+
+    // Update chart data in place — no re-creation
+    if (dauChart) {
+      dauChart.data.datasets[0].data = data.daily.map((r) => r.users);
+      dauChart.data.datasets[1].data = data.prior;
+      dauChart.update();
+    }
+
+    // Reset timestamp
+    lastRefreshTime = Date.now();
+    const el = document.getElementById("lastUpdated");
+    if (el) el.textContent = "Updated just now";
+
+    // Spin animation on the refresh icon SVG
+    const icon = document.getElementById("refreshIcon");
+    if (icon) {
+      icon.classList.remove("spin");
+      // Force reflow so re-adding the class always re-triggers the animation
+      void icon.offsetWidth;
+      icon.classList.add("spin");
+      icon.addEventListener("animationend", () => icon.classList.remove("spin"), { once: true });
+    }
+  }
+
+  // ----------------- Live mode ----------------
+  let liveIntervalId = null;
+  const liveDot = document.getElementById("liveDot");
+
+  function setLiveDot(active) {
+    if (!liveDot) return;
+    if (active) {
+      liveDot.classList.remove("bg-gray-300", "dark:bg-gray-600");
+      liveDot.classList.add("bg-green-500");
+    } else {
+      liveDot.classList.remove("bg-green-500");
+      liveDot.classList.add("bg-gray-300", "dark:bg-gray-600");
+    }
+  }
+
+  function startLiveMode() {
+    if (liveIntervalId !== null) return; // guard against double-start
+    liveIntervalId = setInterval(refreshDashboard, 30000);
+    setLiveDot(true);
+    localStorage.setItem("pulse-live-mode", "on");
+  }
+
+  function stopLiveMode() {
+    if (liveIntervalId !== null) {
+      clearInterval(liveIntervalId);
+      liveIntervalId = null;
+    }
+    setLiveDot(false);
+    localStorage.setItem("pulse-live-mode", "off");
+  }
+
+  const liveToggle = document.getElementById("liveModeToggle");
+  if (liveToggle) {
+    liveToggle.addEventListener("change", () => {
+      if (liveToggle.checked) {
+        startLiveMode();
+      } else {
+        stopLiveMode();
+      }
+    });
+
+    // Restore live mode from localStorage on page load
+    if (localStorage.getItem("pulse-live-mode") === "on") {
+      liveToggle.checked = true;
+      startLiveMode();
+    }
+  }
+
+  // ----------------- Refresh button ----------------
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", refreshDashboard);
+  }
+
+  // ----------------- Initial render ----------------
+  renderTable();
+  renderChart();
+  startTimestampUpdater();
 })();
