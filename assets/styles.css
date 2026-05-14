@@ -1,0 +1,9 @@
+/* Minimal custom styles. Tailwind handles everything else. */
+
+html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Smooth focus styles consistent across browsers */
+:focus { outline: none; }
+
+/* Tabular numbers in metric cells */
+.tabular-nums { font-variant-numeric: tabular-nums; }
