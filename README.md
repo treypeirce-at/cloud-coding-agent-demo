@@ -13,8 +13,21 @@
 └── assets/
     ├── app.js        Table + chart interactivity
     ├── data.js       Mock data (15 days of fabricated metrics)
+    ├── feedback.js   Floating feedback widget (opens an Airtable form in a modal)
     └── styles.css    Custom styles (most styling is Tailwind via CDN)
 ```
+
+## Feedback widget setup (one-time)
+
+A floating "Feedback" button is wired to a modal that embeds an Airtable form. Until the form URL is configured, the modal shows a placeholder. To activate it:
+
+1. In Airtable, open the **Cloud Coding Agent Demo** base.
+2. Open the **Customer Feedback** table.
+3. Click the views panel → **+ Create** → **Form**.
+4. Configure the form fields you want visitors to fill (recommended: a short title field mapped to Feedback Title, plus Raw Text as the body). Set defaults on hidden fields (e.g. Source = "NPS Survey" or similar) so the agent treats submissions consistently.
+5. Click **Share form** → copy the public form URL.
+6. Paste the URL into `assets/feedback.js`, replacing the value of `AIRTABLE_FORM_URL`.
+7. Commit and push. GitHub Pages will redeploy in ~30 seconds.
 
 No build step. No backend. Just HTML, CSS, and JavaScript. Tailwind and Chart.js are loaded via CDN.
 
