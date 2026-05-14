@@ -33,7 +33,6 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased min-h-screen transition-colors duration-200">
 
-  <!-- Nav -->
   <header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
     <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
       <div class="flex items-center gap-8">
@@ -50,16 +49,98 @@
           <a href="settings.html" class="px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800">Settings</a>
         </nav>
       </div>
+
       <div class="flex items-center gap-3">
-        <button class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-3 py-1.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
-          </svg>
-          Last 15 days
-        </button>
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs font-medium flex items-center justify-center">
-          TP
+        <!-- Date Range Picker -->
+        <div class="relative">
+          <button
+            id="dateRangeBtn"
+            class="text-sm text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 bg-white dark:bg-gray-900 flex items-center gap-1.5 transition-colors"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400 dark:text-gray-500">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span id="dateRangeBtnLabel">Last 15 days</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div
+            id="dateRangeDropdown"
+            class="absolute right-0 mt-1.5 w-64 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 hidden"
+            role="menu"
+          >
+            <div class="p-1.5">
+              <button
+                data-range="7d"
+                class="date-range-preset w-full text-left text-sm px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                role="menuitem"
+              >
+                Last 7 days
+              </button>
+              <button
+                data-range="15d"
+                class="date-range-preset w-full text-left text-sm px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                role="menuitem"
+              >
+                Last 15 days
+              </button>
+              <button
+                data-range="custom"
+                class="date-range-preset w-full text-left text-sm px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                role="menuitem"
+              >
+                Custom range
+              </button>
+            </div>
+
+            <div id="customRangePanel" class="hidden border-t border-gray-100 dark:border-gray-800 p-3">
+              <div class="space-y-2.5">
+                <div>
+                  <label for="customStartDate" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start date</label>
+                  <input
+                    type="date"
+                    id="customStartDate"
+                    class="date-input w-full text-sm px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label for="customEndDate" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End date</label>
+                  <input
+                    type="date"
+                    id="customEndDate"
+                    class="date-input w-full text-sm px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                  />
+                </div>
+                <button
+                  id="applyCustomRange"
+                  class="w-full text-sm text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Dark mode toggle -->
+        <button id="darkToggle" class="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle dark mode">
+          <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 hidden dark:block">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 block dark:hidden">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Avatar -->
+        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-semibold select-none">TP</div>
       </div>
     </div>
   </header>
@@ -70,7 +151,7 @@
     <div class="flex items-end justify-between mb-8">
       <div>
         <h1 class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Q2 Overview</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Product metrics for the last 15 days. Updated 4 minutes ago.</p>
+        <p id="pageSubtitle" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Product metrics for the last 15 days. Updated 4 minutes ago.</p>
       </div>
       <div class="flex items-center gap-2">
         <button class="text-sm text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 bg-white dark:bg-gray-900 flex items-center gap-1.5">
@@ -137,7 +218,7 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h2 class="text-base font-semibold text-gray-900 dark:text-white">Daily Active Users</h2>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Last 15 days</p>
+          <p id="chartSubtitle" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Last 15 days</p>
         </div>
         <div class="flex items-center gap-2 text-xs">
           <span class="inline-flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
@@ -161,7 +242,7 @@
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Per-day breakdown. Use the row export to grab a single day's data.</p>
         </div>
         <div class="flex items-center gap-2">
-          <input type="text" placeholder="Filter rows…" class="text-sm px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 w-48" />
+          <input type="text" id="tableFilter" placeholder="Filter rows…" class="text-sm px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 w-48" />
         </div>
       </div>
       <div class="overflow-x-auto">
@@ -191,5 +272,6 @@
   <script src="assets/data.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/feedback.js"></script>
+
 </body>
 </html>
