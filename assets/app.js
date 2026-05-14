@@ -22,15 +22,15 @@
     tbody.innerHTML = rows
       .map((r, i) => {
         return `
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-3 text-gray-900 font-medium">${formatDate(r.date)}</td>
-            <td class="px-6 py-3 text-right tabular-nums">${formatNum(r.users)}</td>
-            <td class="px-6 py-3 text-right tabular-nums">${formatNum(r.sessions)}</td>
-            <td class="px-6 py-3 text-right tabular-nums">${r.conversion.toFixed(1)}%</td>
-            <td class="px-6 py-3 text-right tabular-nums">${formatCurrency(r.revenue)}</td>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+            <td class="px-6 py-3 text-gray-900 dark:text-gray-100 font-medium">${formatDate(r.date)}</td>
+            <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">${formatNum(r.users)}</td>
+            <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">${formatNum(r.sessions)}</td>
+            <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">${r.conversion.toFixed(1)}%</td>
+            <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">${formatCurrency(r.revenue)}</td>
             <td class="px-6 py-3 text-right">
               <button
-                class="export-row text-xs text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 rounded-md px-2.5 py-1 inline-flex items-center gap-1.5 bg-white"
+                class="export-row text-xs text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 rounded-md px-2.5 py-1 inline-flex items-center gap-1.5 bg-white dark:bg-gray-800"
                 data-date="${r.date}"
                 data-users="${r.users}"
                 data-sessions="${r.sessions}"
@@ -90,6 +90,13 @@
     const current = data.daily.map((r) => r.users);
     const prior = data.prior;
 
+    // Pick colors based on current theme
+    const isDark = document.documentElement.classList.contains("dark");
+    const gridColor = isDark ? "#1f2937" : "#f3f4f6";
+    const tickColor = isDark ? "#6b7280" : "#9ca3af";
+    const fillColor = isDark ? "rgba(99, 102, 241, 0.12)" : "rgba(79, 70, 229, 0.08)";
+    const priorBorderColor = isDark ? "#4b5563" : "#d1d5db";
+
     new Chart(ctx, {
       type: "line",
       data: {
@@ -99,7 +106,7 @@
             label: "This period",
             data: current,
             borderColor: "#4f46e5",
-            backgroundColor: "rgba(79, 70, 229, 0.08)",
+            backgroundColor: fillColor,
             borderWidth: 2,
             tension: 0.35,
             fill: true,
@@ -110,7 +117,7 @@
           {
             label: "Prior period",
             data: prior,
-            borderColor: "#d1d5db",
+            borderColor: priorBorderColor,
             backgroundColor: "transparent",
             borderWidth: 2,
             borderDash: [4, 4],
@@ -118,7 +125,7 @@
             fill: false,
             pointRadius: 0,
             pointHoverRadius: 4,
-            pointHoverBackgroundColor: "#9ca3af"
+            pointHoverBackgroundColor: isDark ? "#6b7280" : "#9ca3af"
           }
         ]
       },
@@ -128,7 +135,7 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: "rgba(17, 24, 39, 0.95)",
+            backgroundColor: isDark ? "rgba(17, 24, 39, 0.97)" : "rgba(17, 24, 39, 0.95)",
             titleFont: { size: 12, weight: "600" },
             bodyFont: { size: 12 },
             padding: 10,
@@ -143,7 +150,7 @@
           x: {
             grid: { display: false },
             ticks: {
-              color: "#9ca3af",
+              color: tickColor,
               font: { size: 11 },
               maxRotation: 0,
               autoSkip: true,
@@ -151,10 +158,10 @@
             }
           },
           y: {
-            grid: { color: "#f3f4f6" },
+            grid: { color: gridColor },
             border: { display: false },
             ticks: {
-              color: "#9ca3af",
+              color: tickColor,
               font: { size: 11 },
               callback: (v) => v.toLocaleString("en-US")
             }
