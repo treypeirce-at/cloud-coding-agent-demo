@@ -13,3 +13,53 @@ html { transition: background-color 0.2s ease, color 0.2s ease; }
 
 /* Dark mode body background fallback (for elements outside Tailwind scope) */
 .dark body { background-color: #030712; }
+
+/* ----- Print stylesheet -----
+   Goal: clean, single-page-friendly printout. Hide nav, action buttons,
+   per-row Export column, and the Export menu. Force a light, grayscale-safe
+   palette regardless of the current theme. */
+@media print {
+  /* Force light theme on print, even if dark mode is active. */
+  html, html.dark { background-color: #fff !important; }
+  html.dark body, body {
+    background-color: #fff !important;
+    color: #111 !important;
+  }
+  /* Reset dark-mode surface colors to white so cards print cleanly. */
+  .dark .bg-gray-900,
+  .dark .bg-gray-950,
+  .bg-gray-50, .bg-white {
+    background-color: #fff !important;
+  }
+  .dark .text-white,
+  .dark .text-gray-100,
+  .dark .text-gray-200,
+  .dark .text-gray-300 { color: #111 !important; }
+  .dark .text-gray-400,
+  .dark .text-gray-500 { color: #555 !important; }
+  .dark .border-gray-700,
+  .dark .border-gray-800,
+  .border-gray-200 { border-color: #d1d5db !important; }
+
+  /* Hide chrome that doesn't belong on paper. */
+  header,
+  .no-print,
+  .export-row,
+  .actions-col,
+  #exportMenu,
+  #exportMenuButton { display: none !important; }
+
+  /* Layout: drop max-width / shadows for a tighter print page. */
+  main { max-width: 100% !important; padding: 0 !important; }
+
+  /* Avoid awkward page breaks inside cards and the table. */
+  .rounded-lg, table, thead, tbody, tr { page-break-inside: avoid; }
+
+  /* Slightly tighter chart area for print. */
+  canvas { max-height: 320px !important; }
+
+  /* Grayscale-safe chart strokes (Chart.js renders to canvas so this
+     covers icons / SVGs in the surrounding chrome rather than the chart
+     itself; the chart's own colors are still readable on grayscale). */
+  svg { filter: grayscale(0.4); }
+}
