@@ -7,3 +7,9 @@ html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grays
 
 /* Tabular numbers in metric cells */
 .tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* Smooth theme transitions */
+html { transition: background-color 0.2s ease, color 0.2s ease; }
+
+/* Dark mode body background fallback (for elements outside Tailwind scope) */
+.dark body { background-color: #030712; }
