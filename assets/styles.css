@@ -13,3 +13,14 @@ html { transition: background-color 0.2s ease, color 0.2s ease; }
 
 /* Dark mode body background fallback (for elements outside Tailwind scope) */
 .dark body { background-color: #030712; }
+
+/* Daily Metrics table: column drag-and-drop visual feedback */
+#metricsTableHead th.th-sortable { position: relative; }
+#metricsTableHead th.dragging { opacity: 0.4; }
+#metricsTableHead th.drag-over {
+  box-shadow: inset 3px 0 0 0 #4f46e5;
+  background-color: rgba(79, 70, 229, 0.06);
+}
+.dark #metricsTableHead th.drag-over {
+  background-color: rgba(99, 102, 241, 0.14);
+}
